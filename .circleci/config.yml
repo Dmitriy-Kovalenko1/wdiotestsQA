@@ -25,9 +25,18 @@ jobs:
       # Next, the node orb's install-packages step will install the dependencies from a package.json.
       # The orb install-packages step will also automatically cache them for faster future runs.
       - node/install-packages
+ circleci-project-setup
       # If you are using yarn instead npm, remove the line above and uncomment the two lines below.
       # - node/install-packages:
       #     pkg-manager: yarn 
+      - run:
+          name: Get previous results
+          command: |
+            export ARTIFACT_LINK="https://circleci.com/api/v1.1/project/github/Dmitriy-Kovalenko1/wdiotests/latest/artifacts"
+            curl $ARTIFACT_LINK -H "Circle-Token $CIRCLE_TOKEN" | grep -Eoq '(http|https)://[a-zA-Z0-9./?=_%:-]*' && wget $(curl $ARTIFACT_LINK -H "Circle-Token $CIRCLE_TOKEN" | grep -Eo '(http|https)://[a-zA-Z0-9./?=_%:-]*') -O allure-previous.zip
+            test -f allure-previous.zip && unzip allure-previous.zip -d allure-previous || echo "Archive not found"
+            ls -la
+ main
       - run:
           name: Run tests
           command: npm test
